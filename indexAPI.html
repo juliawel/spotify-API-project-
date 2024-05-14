@@ -1,13 +1,30 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="Assets API/style.css">
-    <script src="Assets API/script.js"></script>
-    <title>Document</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spotify App</title>
+  <link rel="stylesheet" href="Assets API/style.css">
 </head>
 <body>
-    
+  <div id="app">
+    <h1>Spotify App</h1>
+    <button id="login-button">Login with Spotify</button>
+    <div id="user-info" style="display:none;">
+      <h2>User Information</h2>
+      <p id="username"></p>
+      <p id="user-email"></p>
+      <img id="user-image" src="" alt="User Image" style="width: 100px; height: 100px;">
+    </div>
+    <div id="services" style="display:none;">
+      <h2>Services</h2>
+      <button id="get-playlists">Get My Playlists (GET)</button>
+      <button id="add-track">Add Track to Playlist (POST)</button>
+      <button id="update-playlist">Update Playlist Name (PUT)</button>
+      <button id="remove-track">Remove Track from Playlist (DELETE)</button>
+      <div id="results"></div>
+    </div>
+  </div>
+  <script src="Assets API/script.js"></script>
 </body>
 </html>
