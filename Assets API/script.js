@@ -1,5 +1,5 @@
 const clientId = 'ac1b21d332e44888a1d7f4f1b15eb060';
-const redirectUri = 'http://localhost:5500/index.html'; // Atualize esta URI
+const redirectUri = 'http://localhost:5501/index.html'; // Atualize esta URI
 const scopes = [
   'user-read-private',
   'user-read-email',
