@@ -1,5 +1,5 @@
 const clientId = 'a97d53680b0c4da2862769a77dc8f369';
-const redirectUri = 'http://127.0.0.1:5501/indexAPI.html'; 
+const redirectUri = 'http://127.0.0.1:5501/indexAPI.html';
 const scopes = [
   'user-read-private',
   'user-read-email',
@@ -19,18 +19,128 @@ window.addEventListener('load', () => {
   const hash = window.location.hash.substring(1);
   const params = new URLSearchParams(hash);
   const accessToken = params.get('access_token');
-  
+
   if (accessToken) {
     document.getElementById('login-button').style.display = 'none';
     fetchUserInfo(accessToken);
     document.getElementById('services').style.display = 'block';
-    
-    document.getElementById('get-playlists').addEventListener('click', () => fetchPlaylists(accessToken)); 
-    document.getElementById('add-track').addEventListener('click', () => addTrackToPlaylist(accessToken)); 
-    document.getElementById('update-playlist').addEventListener('click', () => updatePlaylistName(accessToken)); 
-    document.getElementById('remove-track').addEventListener('click', () => removeTrackFromPlaylist(accessToken)); 
+
+    document.getElementById('get-playlists').addEventListener('click', () => fetchPlaylists(accessToken));
+    document.getElementById('add-track').addEventListener('click', () => addTrackToPlaylist(accessToken));
+    document.getElementById('update-playlist').addEventListener('click', () => updatePlaylistName(accessToken));
+    document.getElementById('remove-track').addEventListener('click', () => removeTrackFromPlaylist(accessToken));
   }
 });
+
+async function getPlaylistId(accessToken, playlistName) {
+  const response = await fetch('https://api.spotify.com/v1/me/playlists', {
+    headers: {
+      'Authorization': `Bearer ${accessToken}`
+    }
+  });
+  const data = await response.json();
+  const playlist = data.items.find(item => item.name === playlistName);
+  if (playlist) {
+    return playlist.id;
+  } else {
+    throw new Error('Playlist not found.');
+  }
+}
+
+async function getTrackUri(accessToken, trackName) {
+  const response = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(trackName)}&type=track`, {
+    headers: {
+      'Authorization': `Bearer ${accessToken}`
+    }
+  });
+  const data = await response.json();
+  if (data.tracks.items.length > 0) {
+    return data.tracks.items[0].uri;
+  } else {
+    throw new Error('Música não encontrada.');
+  }
+}
+
+async function addTrackToPlaylist(accessToken) {
+  const playlistName = prompt("Qual o nome da sua playlist?");
+  const trackName = prompt("Qual o nome da música?");
+
+  try {
+    const playlistId = await getPlaylistId(accessToken, playlistName);
+    const trackUri = await getTrackUri(accessToken, trackName);
+
+    const response = await fetch(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        uris: [trackUri]
+      })
+    });
+    const data = await response.json();
+
+    if (data.snapshot_id) {
+      alert('Música adicionada.');
+    }
+  } catch (error) {
+    console.error('Erro', error.message);
+  }
+}
+
+async function updatePlaylistName(accessToken) {
+  const playlistName = prompt("Qual o nome da sua playlist?");
+  const newName = prompt("Qual o novo nome da playlist?");
+
+  try {
+    const playlistId = await getPlaylistId(accessToken, playlistName);
+
+    const response = await fetch(`https://api.spotify.com/v1/playlists/${playlistId}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        name: newName
+      })
+    });
+
+    if (response.status === 200) {
+      alert('Nome atualizado.');
+    }
+  } catch (error) {
+    console.error('Erro', error.message);
+  }
+}
+
+async function removeTrackFromPlaylist(accessToken) {
+  const playlistName = prompt("Qual o nome da sua playlist?");
+  const trackName = prompt("Qual o nome da música?");
+
+  try {
+    const playlistId = await getPlaylistId(accessToken, playlistName);
+    const trackUri = await getTrackUri(accessToken, trackName);
+
+    const response = await fetch(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        tracks: [{ uri: trackUri }]
+      })
+    });
+
+    if (response.status === 200) {
+      alert('Música removida.');
+    }
+  } catch (error) {
+    console.error('Erro', error.message);
+  }
+}
 
 function fetchUserInfo(accessToken) {
   fetch('https://api.spotify.com/v1/me', {
@@ -58,75 +168,8 @@ function fetchPlaylists(accessToken) {
   })
   .then(response => response.json())
   .then(data => {
-    console.log(data.items); 
+    console.log(data.items);
     displayResults(data.items, 'Playlists');
-  })
-  .catch(error => console.error('Erro ', error));
-}
-
-function addTrackToPlaylist(accessToken) {
-  const playlistId = prompt("Qual o ID da sua playlist? ");
-  const trackUri = prompt("Qual o URI da música? ");
-
-  fetch(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${accessToken}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      uris: [trackUri]
-    })
-  })
-  .then(response => response.json())
-  .then(data => {
-    if (data.snapshot_id) {
-      alert('Música adicionada. ');
-    }
-  })
-  .catch(error => console.error('Erro ', error));
-}
-
-function updatePlaylistName(accessToken) {
-  const playlistId = prompt("Qual o ID da sua playlist? "); 
-  const newName = prompt("Qual o URI da música? ");
-
-  fetch(`https://api.spotify.com/v1/playlists/${playlistId}`, {
-    method: 'PUT',
-    headers: {
-      'Authorization': `Bearer ${accessToken}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      name: newName
-    })
-  })
-  .then(response => {
-    if (response.status === 200) {
-      alert('Nome atualizado. ');
-    }
-  })
-  .catch(error => console.error('Erro ', error));
-}
-
-function removeTrackFromPlaylist(accessToken) {
-  const playlistId = prompt("Qual o ID da sua playlist? "); 
-  const trackUri = prompt("Qual o URI da música? "); 
-
-  fetch(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
-    method: 'DELETE',
-    headers: {
-      'Authorization': `Bearer ${accessToken}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      tracks: [{ uri: trackUri }]
-    })
-  })
-  .then(response => {
-    if (response.status === 200) {
-      alert('Música removida.');
-    }
   })
   .catch(error => console.error('Erro ', error));
 }
@@ -140,3 +183,4 @@ function displayResults(items, type) {
     resultsDiv.appendChild(p);
   });
 }
+  
