@@ -1,5 +1,5 @@
-const clientId = 'ac1b21d332e44888a1d7f4f1b15eb060';
-const redirectUri = 'http://localhost:5501/index.html'; // Atualize esta URI
+const clientId = 'a97d53680b0c4da2862769a77dc8f369';
+const redirectUri = 'http://127.0.0.1:5501/indexAPI.html'; 
 const scopes = [
   'user-read-private',
   'user-read-email',
@@ -22,13 +22,13 @@ window.addEventListener('load', () => {
   
   if (accessToken) {
     document.getElementById('login-button').style.display = 'none';
-    fetchUserInfo(accessToken); // Serviço GET: Obter informações do usuário
+    fetchUserInfo(accessToken);
     document.getElementById('services').style.display = 'block';
     
-    document.getElementById('get-playlists').addEventListener('click', () => fetchPlaylists(accessToken)); // Serviço GET: Obter playlists do usuário
-    document.getElementById('add-track').addEventListener('click', () => addTrackToPlaylist(accessToken)); // Serviço POST: Adicionar faixa à playlist
-    document.getElementById('update-playlist').addEventListener('click', () => updatePlaylistName(accessToken)); // Serviço PUT: Atualizar nome da playlist
-    document.getElementById('remove-track').addEventListener('click', () => removeTrackFromPlaylist(accessToken)); // Serviço DELETE: Remover faixa da playlist
+    document.getElementById('get-playlists').addEventListener('click', () => fetchPlaylists(accessToken)); 
+    document.getElementById('add-track').addEventListener('click', () => addTrackToPlaylist(accessToken)); 
+    document.getElementById('update-playlist').addEventListener('click', () => updatePlaylistName(accessToken)); 
+    document.getElementById('remove-track').addEventListener('click', () => removeTrackFromPlaylist(accessToken)); 
   }
 });
 
@@ -41,13 +41,13 @@ function fetchUserInfo(accessToken) {
   .then(response => response.json())
   .then(data => {
     document.getElementById('user-info').style.display = 'block';
-    document.getElementById('username').textContent = `Username: ${data.display_name}`;
+    document.getElementById('username').textContent = `Usuário: ${data.display_name}`;
     document.getElementById('user-email').textContent = `Email: ${data.email}`;
     if (data.images.length > 0) {
       document.getElementById('user-image').src = data.images[0].url;
     }
   })
-  .catch(error => console.error('Error fetching user info:', error));
+  .catch(error => console.error('Erro ', error));
 }
 
 function fetchPlaylists(accessToken) {
@@ -58,15 +58,15 @@ function fetchPlaylists(accessToken) {
   })
   .then(response => response.json())
   .then(data => {
-    console.log(data.items); // Aqui você encontra o ID das suas playlists
+    console.log(data.items); 
     displayResults(data.items, 'Playlists');
   })
-  .catch(error => console.error('Error fetching playlists:', error));
+  .catch(error => console.error('Erro ', error));
 }
 
 function addTrackToPlaylist(accessToken) {
-  const playlistId = prompt("Enter your playlist ID"); // Solicita o ID da playlist ao usuário
-  const trackUri = prompt("Enter the track URI"); // Solicita o URI da faixa ao usuário
+  const playlistId = prompt("Qual o ID da sua playlist? ");
+  const trackUri = prompt("Qual o URI da música? ");
 
   fetch(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
     method: 'POST',
@@ -81,15 +81,15 @@ function addTrackToPlaylist(accessToken) {
   .then(response => response.json())
   .then(data => {
     if (data.snapshot_id) {
-      alert('Track added to playlist successfully!');
+      alert('Música adicionada. ');
     }
   })
-  .catch(error => console.error('Error adding track to playlist:', error));
+  .catch(error => console.error('Erro ', error));
 }
 
 function updatePlaylistName(accessToken) {
-  const playlistId = prompt("Enter your playlist ID"); // Solicita o ID da playlist ao usuário
-  const newName = prompt("Enter the new playlist name"); // Solicita o novo nome da playlist ao usuário
+  const playlistId = prompt("Qual o ID da sua playlist? "); 
+  const newName = prompt("Qual o URI da música? ");
 
   fetch(`https://api.spotify.com/v1/playlists/${playlistId}`, {
     method: 'PUT',
@@ -103,15 +103,15 @@ function updatePlaylistName(accessToken) {
   })
   .then(response => {
     if (response.status === 200) {
-      alert('Playlist name updated successfully!');
+      alert('Nome atualizado. ');
     }
   })
-  .catch(error => console.error('Error updating playlist name:', error));
+  .catch(error => console.error('Erro ', error));
 }
 
 function removeTrackFromPlaylist(accessToken) {
-  const playlistId = prompt("Enter your playlist ID"); // Solicita o ID da playlist ao usuário
-  const trackUri = prompt("Enter the track URI to remove"); // Solicita o URI da faixa ao usuário
+  const playlistId = prompt("Qual o ID da sua playlist? "); 
+  const trackUri = prompt("Qual o URI da música? "); 
 
   fetch(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
     method: 'DELETE',
@@ -125,10 +125,10 @@ function removeTrackFromPlaylist(accessToken) {
   })
   .then(response => {
     if (response.status === 200) {
-      alert('Track removed from playlist successfully!');
+      alert('Música removida.');
     }
   })
-  .catch(error => console.error('Error removing track from playlist:', error));
+  .catch(error => console.error('Erro ', error));
 }
 
 function displayResults(items, type) {
