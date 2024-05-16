@@ -34,3 +34,6 @@ body {
     margin-top: 20px;
   }
   
+  #user-image{
+    border-radius: 50%;
+  }
